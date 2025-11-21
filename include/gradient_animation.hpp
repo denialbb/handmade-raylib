@@ -4,6 +4,6 @@
 #include "config.hpp"
 #include "raylib.h"
 
-int gradientAnimation(void);
+int gradientAnimation(int, int);
 
 #endif // GRADIENT_HPP

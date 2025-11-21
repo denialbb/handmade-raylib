@@ -3,14 +3,33 @@
 #include "gradient_animation.hpp"
 #include "raylib.h"
 
+void showFPS(void) {
+  int fps = GetFPS();
+  DrawText(TextFormat("FPS: %i", fps), 0, 0, 18, GREEN);
+}
+
+void drawBullet(Texture2D texture, Vector2 origin, Vector2 direction,
+                float speed) {
+  static Vector2 _speed = {.x = speed, .y = speed};
+  DrawTexture(texture, origin.x + _speed.x, origin.y + _speed.y, WHITE);
+  _speed.x += direction.x * speed;
+  _speed.y += direction.y * speed;
+}
+
 int main(void) {
   InitWindow(screenWidth, screenHeight, "Handmade");
   SetTargetFPS(targetFps);
+  Vector2 origin = {.x = 0, .y = screenHeight / 2};
+  Vector2 direction = {.x = 1, .y = 0};
+  Image img = GenImageGradientRadial(20, 20, 0.2f, RED, BLACK);
+  Texture2D texture = LoadTextureFromImage(img);
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
-    gradientAnimation();
+    drawBullet(texture, origin, direction, 10);
+
+    showFPS();
     EndDrawing();
   }
 

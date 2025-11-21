@@ -1,4 +1,5 @@
 #include "gradient_animation.hpp"
+#include "config.hpp"
 #include <cstdint>
 #include <raylib.h>
 
@@ -12,17 +13,14 @@ struct Bitmap {
   int height;
 };
 
-const Bitmap bitmap = {.width = 64, .height = 64};
 Color color = {.r = 0, .g = 0, .b = 0, .a = 255};
-int offset = 50;
 
-int gradientAnimation(void) {
-  DrawText("GradientAnimation", 100, 150, 20, BLACK);
-  for (int y = 0; y < bitmap.height; ++y) {
-    for (int x = 0; x < bitmap.width; ++x) {
-      color.r = y;
-      color.g = x;
-      DrawPixel(x + offset, y, color);
+int gradientAnimation(int xOffset, int yOffset) {
+  for (int y = 0; y < screenHeight; ++y) {
+    for (int x = 0; x < screenWidth; ++x) {
+      color.b = (uint8)y + yOffset;
+      color.g = (uint8)x + xOffset;
+      DrawPixel(x, y, color);
     }
   }
 

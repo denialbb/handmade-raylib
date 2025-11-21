@@ -6,7 +6,7 @@ constexpr int screenWidth = 1280;
 constexpr int screenHeight = 720;
 
 // Game
-constexpr int targetFps = 60;
+constexpr int targetFps = 120;
 constexpr float playerSpeed = 300.0f; // pixels per second
 
 #endif // CONFIG_H
