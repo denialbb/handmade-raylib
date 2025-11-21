@@ -43,3 +43,8 @@ make clean
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## References
+
+- [Handmade Hero episode guide]("https://guide.handmadehero.org/")
+- [Raylib Cheatsheet]("https://www.raylib.com/cheatsheet/cheatsheet.html")
