@@ -46,3 +46,6 @@
 GEMINI.md
 game
 unit_tests
+compile_commands.json
+.cache/clangd/index
+build

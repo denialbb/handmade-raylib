@@ -1,0 +1,7 @@
+[HandmadeRaylib]
+entry_point = "./src/main.cpp"
+output = "./game"
+arguments = ""
+
+[SOLUTION]
+executable = "./game"

@@ -1,0 +1,5 @@
+[tools]
+ccache = "latest"
+cmake = "latest"
+mold = "latest"
+ninja = "latest"

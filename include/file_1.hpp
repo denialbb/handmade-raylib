@@ -5,4 +5,4 @@
 
 int func_file_1(void);
 
-#endif  // FILE_1_HPP
+#endif // FILE_1_HPP
