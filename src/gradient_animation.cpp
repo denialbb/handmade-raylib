@@ -9,8 +9,8 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 
 struct Bitmap {
-  int width;
-  int height;
+    int width;
+    int height;
 };
 
 Color color = {.r = 0, .g = 0, .b = 0, .a = 255};
@@ -18,13 +18,13 @@ Color color = {.r = 0, .g = 0, .b = 0, .a = 255};
 // NOTE: DrawPixel is super slow
 // need to compute the entire screen first and then Draw it
 int gradientAnimation(int xOffset, int yOffset) {
-  for (int y = 0; y < screenHeight; ++y) {
-    for (int x = 0; x < screenWidth; ++x) {
-      color.b = (uint8)y + yOffset;
-      color.g = (uint8)x + xOffset;
-      DrawPixel(x, y, color);
+    for (int y = 0; y < screenHeight; ++y) {
+        for (int x = 0; x < screenWidth; ++x) {
+            color.b = (uint8)y + yOffset;
+            color.g = (uint8)x + xOffset;
+            DrawPixel(x, y, color);
+        }
     }
-  }
 
-  return 0;
+    return 0;
 }
