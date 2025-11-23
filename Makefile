@@ -38,7 +38,7 @@ endif
 # creating the executable from the object files. the dependencies here are the object files, 
 # and the existence of a build/ folder. 
 game: $(BUILD_FOLDER) $(OBJS)
-	$(CXX) $(OBJS) -o $(TARGET) $(LIBS)
+	$(CXX) $(DEBUG_FLAGS) $(OBJS) -o $(TARGET) $(LIBS)
 
 # option to build and run the game
 run: game

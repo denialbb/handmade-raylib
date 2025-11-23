@@ -17,13 +17,15 @@ void drawBullet(Texture2D texture, Vector2 origin, Vector2 direction,
 }
 
 int main(void) {
+    SetConfigFlags(
+        FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows creation
     InitWindow(screenWidth, screenHeight, "Handmade");
     SetTargetFPS(targetFps);
     Vector2 origin = {.x = 0, .y = screenHeight / 2};
-    int offsetx = 0;
     Vector2 direction = {.x = 1, .y = 0};
     Image img = GenImageGradientRadial(20, 20, 0.2f, RED, BLACK);
     Texture2D texture = LoadTextureFromImage(img);
+
     initializeInput();
 
     while (!WindowShouldClose()) {
