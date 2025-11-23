@@ -15,7 +15,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 # Use file(GLOB) to automatically find all source files
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Add the executable target
 add_executable(game ${SOURCES})
