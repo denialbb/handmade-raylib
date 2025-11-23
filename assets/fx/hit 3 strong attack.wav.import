@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://d2nrso2om7iw3"
+path="res://.godot/imported/hit 3 strong attack.wav-93f4495c02f0026acd8c95cec013db73.sample"
+
+[deps]
+
+source_file="res://assets/sound/fx/hit 3 strong attack.wav"
+dest_files=["res://.godot/imported/hit 3 strong attack.wav-93f4495c02f0026acd8c95cec013db73.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

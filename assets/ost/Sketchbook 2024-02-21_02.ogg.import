@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://daidbfaplawtv"
+path="res://.godot/imported/Sketchbook 2024-02-21_02.ogg-4fe8cc7c852a91bafbb5d8f1b7a36f35.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/ost/Sketchbook 2024-02-21_02.ogg"
+dest_files=["res://.godot/imported/Sketchbook 2024-02-21_02.ogg-4fe8cc7c852a91bafbb5d8f1b7a36f35.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

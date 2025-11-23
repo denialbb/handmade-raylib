@@ -1,7 +1,4 @@
-#include "gradient_animation.hpp"
-#include "config.hpp"
-#include <cstdint>
-#include <raylib.h>
+#include "render/gradient_animation.hpp"
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;

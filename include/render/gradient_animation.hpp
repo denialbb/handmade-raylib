@@ -2,7 +2,8 @@
 #define GRADIENT_HPP
 
 #include "config.hpp"
-#include "raylib.h"
+#include <cstdint>
+#include <raylib.h>
 
 int gradientAnimation(int, int);
 
