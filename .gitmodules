@@ -1,3 +1,3 @@
 [submodule "assets"]
 	path = assets
-	url = ./assets
+	url = git@github.com:denialbb/raylib-assets.git
