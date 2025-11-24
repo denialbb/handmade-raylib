@@ -21,7 +21,7 @@ This will generate an executable file (`game` on Linux, `game.exe` on Windows) i
 To compile and immediately run the game, use:
 
 ```sh
-make run
+cmake -S . -B build && cmake --build build && ./game
 ```
 
 ### Running the Tests
