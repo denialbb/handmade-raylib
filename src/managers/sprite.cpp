@@ -37,7 +37,8 @@ Sprite _player_sprite = {
 };
 
 void initializeSpritesheet() {
-    _spritesheet = LoadTexture(_SPRITESHEET);
+    printf("Loading spritesheet from: %s\n", config.spritesheet_path);
+    _spritesheet = LoadTexture(config.spritesheet_path);
     if (IsTextureValid(_spritesheet)) {
         printf("spritesheet is valid\n");
     } else {

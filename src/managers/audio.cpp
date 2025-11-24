@@ -1,18 +1,19 @@
 #include "managers/audio.hpp"
+#include "managers/config.hpp"
 #include <cstdio>
 #include <raylib.h>
 
-const char *OST_FILE = "assets/ost/ost1.ogg";
 Sound _ost;
 
 bool initializeAudio() {
     InitAudioDevice();
-    SetMasterVolume(2);
+    SetMasterVolume(1);
     return IsAudioDeviceReady();
 }
 
 void loadOST() {
-    _ost = LoadSound(OST_FILE);
+    printf("Loading OST from: %s\n", config.ost_path);
+    _ost = LoadSound(config.ost_path);
 
     if (IsSoundValid(_ost)) {
         printf("Music stream is valid\n");
