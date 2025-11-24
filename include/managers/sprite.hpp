@@ -1,7 +1,8 @@
 #ifndef HANDMADE_SPRITE_H
 #define HANDMADE_SPRITE_H
 
-#include "config.hpp"
+#include "managers/config.hpp"
+#include <cstdio>
 #include <raylib.h>
 
 void initializeSpritesheet();

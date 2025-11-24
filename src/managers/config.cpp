@@ -1,160 +1,68 @@
 #include "managers/config.hpp"
-#include "raylib.h"
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <string>
 
-GameConfig config = {0};
-// NOTE: This is a bit of a hack, we should probably use a more robust
-// solution in the future.
-// We are using a static buffer to store the trimmed string, this is not
-// thread-safe.
-// NOTE: Caller must free the returned char* using RL_FREE
-char *trim(const char *str) {
-    const char *start = str;
-    while (*start && std::isspace(*start)) {
-        start++;
+std::string ASSETS_CONFIG = "assets.ini";
+std::map<std::string, std::string> asset_config;
+
+inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+                return !std::isspace(ch);
+            }));
+}
+
+inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+                         [](unsigned char ch) { return !std::isspace(ch); })
+                .base(),
+            s.end());
+}
+
+void print_map(const std::map<std::string, std::string> &m) {
+    for (auto &[key, value] : m) {
+        std::string msg = '[' + key + "] = " + value;
     }
-
-    const char *end = str + std::strlen(str) - 1;
-    while (end >= start && std::isspace(*end)) {
-        end--;
-    }
-
-    int length = (end >= start) ? (end - start + 1) : 0;
-
-    // Use RL_MALLOC instead of new char[]
-    char *buffer = (char *)RL_MALLOC(length + 1);
-    if (buffer == NULL) { // Handle allocation failure
-        return NULL;
-    }
-
-    if (length > 0) {
-        std::strncpy(buffer, start, length);
-    }
-    buffer[length] = '\0';
-
-    return buffer;
 }
 
 void LoadConfig(const char *fileName) {
     char *fileContent = LoadFileText(fileName);
+    std::string delimiter = "=";
+
     if (fileContent == NULL) {
         printf("Failed to load config file: %s\n", fileName);
         return;
     }
 
     int lineCount;
-    char **lines = TextSplit(fileContent, '\n', &lineCount); // Raylib function
+    std::string section = "";
+    char **lines = TextSplit(fileContent, '\n', &lineCount);
 
     for (int i = 0; i < lineCount; i++) {
-        char *line = lines[i];
-        char *trimmedLine =
-            trim(line); // trim returns RL_MALLOCed char*, needs RL_FREE
-
-        if (trimmedLine == NULL) { // Handle trim allocation failure
-            RL_FREE(lines);
-            UnloadFileText(fileContent);
-            return;
-        }
-
-        if (trimmedLine[0] == '[' || trimmedLine[0] == '\0' ||
-            trimmedLine[0] == ';') {
-            RL_FREE(trimmedLine); // Free memory from trim
+        std::string line = lines[i];
+        if (line.length() == 0 || line[0] == '#' || line[0] == '\n') {
             continue;
         }
 
-        char *equalSign = std::strchr(trimmedLine, '=');
-        if (equalSign == NULL) {
-            RL_FREE(trimmedLine); // Free memory from trim
+        // sections
+        if (line[0] == '[') {
+            section = line.substr(1, line.length() - 2);
             continue;
         }
 
-        // Extract key
-        char *keyBuffer =
-            (char *)RL_MALLOC(equalSign - trimmedLine + 1); // Use RL_MALLOC
-        if (keyBuffer == NULL) { // Handle allocation failure
-            RL_FREE(trimmedLine);
-            RL_FREE(lines);
-            UnloadFileText(fileContent);
-            return;
-        }
-        std::strncpy(keyBuffer, trimmedLine, equalSign - trimmedLine);
-        keyBuffer[equalSign - trimmedLine] = '\0';
-        char *trimmedKey =
-            trim(keyBuffer); // trim returns RL_MALLOCed char*, needs RL_FREE
-        RL_FREE(keyBuffer);  // Free temp buffer using RL_FREE
+        long split_pos = line.find(delimiter);
 
-        if (trimmedKey == NULL) { // Handle trim allocation failure
-            RL_FREE(trimmedLine);
-            RL_FREE(lines);
-            UnloadFileText(fileContent);
-            return;
-        }
+        std::string key = line.substr(0, split_pos);
+        rtrim(key);
+        key = section + "." + key;
 
-        // Extract value
-        char *value = trim(equalSign +
-                           1); // trim returns RL_MALLOCed char*, needs RL_FREE
+        std::string value = line.substr(split_pos + 1, line.length());
+        ltrim(value);
 
-        if (value == NULL) { // Handle trim allocation failure
-            RL_FREE(trimmedLine);
-            RL_FREE(trimmedKey);
-            RL_FREE(lines);
-            UnloadFileText(fileContent);
-            return;
-        }
-
-        // (Commented out printf line)
-
-        if (std::strcmp(trimmedKey, "ost") == 0) {
-            // Need to copy value, as config.ost_path will be RL_FREE'd by
-            // UnloadConfig and `value` itself needs to be RL_FREE'd too.
-            config.ost_path = (char *)RL_MALLOC(std::strlen(value) + 1);
-            if (config.ost_path ==
-                NULL) { /* Handle error, or re-enable printf for debug */
-            }
-            std::strcpy(config.ost_path, value);
-            RL_FREE(value); // Free `value` after copying
-        } else if (std::strcmp(trimmedKey, "sheet") == 0) {
-            config.spritesheet_path = (char *)RL_MALLOC(std::strlen(value) + 1);
-            if (config.spritesheet_path ==
-                NULL) { /* Handle error, or re-enable printf for debug */
-            }
-            std::strcpy(config.spritesheet_path, value);
-            RL_FREE(value); // Free `value` after copying
-        } else if (std::strcmp(trimmedKey, "sprite_id_x") == 0) {
-            config.player_sprite_id_x = TextToInteger(value);
-            RL_FREE(value); // Free value after use for integers
-        } else if (std::strcmp(trimmedKey, "sprite_id_y") == 0) {
-            config.player_sprite_id_y = TextToInteger(value);
-            RL_FREE(value);
-        } else if (std::strcmp(trimmedKey, "width") == 0) {
-            config.player_width = TextToInteger(value);
-            RL_FREE(value);
-        } else if (std::strcmp(trimmedKey, "height") == 0) {
-            config.player_height = TextToInteger(value);
-            RL_FREE(value);
-        } else {
-            // If key not recognized, free value
-            RL_FREE(value);
-        }
-
-        RL_FREE(trimmedLine); // Free memory for trimmedLine after all uses
-        RL_FREE(trimmedKey);  // Free memory for trimmedKey after all uses
+        asset_config.insert({key, value});
     }
 
-    RL_FREE(lines); // Free memory allocated by TextSplit
+    print_map(asset_config);
+
     UnloadFileText(fileContent);
 }
 
-void UnloadConfig() {
-    if (config.ost_path) {
-        RL_FREE(config.ost_path); // Use RL_FREE
-        config.ost_path = nullptr;
-    }
-    if (config.spritesheet_path) {
-        RL_FREE(config.spritesheet_path); // Use RL_FREE
-        config.spritesheet_path = nullptr;
-    }
-}
+void UnloadConfig() {}

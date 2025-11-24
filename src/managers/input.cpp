@@ -1,5 +1,4 @@
 #include "managers/input.hpp"
-#include "config.hpp"
 #include <cstdint>
 #include <cstdio>
 #include <raylib.h>

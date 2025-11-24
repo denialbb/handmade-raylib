@@ -7,13 +7,15 @@ Sound _ost;
 
 bool initializeAudio() {
     InitAudioDevice();
-    SetMasterVolume(1);
+    SetMasterVolume(0.2f);
     return IsAudioDeviceReady();
 }
 
 void loadOST() {
-    printf("Loading OST from: %s\n", config.ost_path);
-    _ost = LoadSound(config.ost_path);
+    const char *ost_path =
+        asset_config.find("audio.ost.1.path")->second.c_str();
+    printf("Loading OST from: %s\n", ost_path);
+    _ost = LoadSound(ost_path);
 
     if (IsSoundValid(_ost)) {
         printf("Music stream is valid\n");

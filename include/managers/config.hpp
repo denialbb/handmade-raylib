@@ -1,21 +1,27 @@
 #ifndef CONFIG_MANAGER_H
 #define CONFIG_MANAGER_H
 
-struct GameConfig {
-    // audio
-    char *ost_path;
+#include "raylib.h"
+#include <algorithm>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <locale>
+#include <map>
+#include <string>
 
-    // sprites
-    char *spritesheet_path;
+// Screen
+constexpr int screenWidth = 1280;
+constexpr int screenHeight = 720;
 
-    // player
-    int player_sprite_id_x;
-    int player_sprite_id_y;
-    int player_width;
-    int player_height;
-};
+// Game
+constexpr int targetFps = 60;
+constexpr float playerSpeed = 300.0f; // pixels per second
 
-extern GameConfig config;
+extern std::string ASSETS_CONFIG;
+
+extern std::map<std::string, std::string> asset_config;
 
 void LoadConfig(const char *fileName);
 void UnloadConfig();

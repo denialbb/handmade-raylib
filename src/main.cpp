@@ -5,13 +5,14 @@ void showFPS(void) {
     DrawText(TextFormat("FPS: %i", fps), screenWidth - 65, 5, 15, LIME);
 }
 
-// NOTE: this needs pooling at some point
-
 int main(void) {
     SetConfigFlags(
         FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows creation
     InitWindow(screenWidth, screenHeight, "Handmade");
     SetTargetFPS(targetFps);
+
+    printf(ASSETS_CONFIG.c_str());
+    LoadConfig(ASSETS_CONFIG.c_str());
 
     initializeInput();
 
@@ -25,10 +26,9 @@ int main(void) {
         handleInput();
 
         BeginDrawing();
-
         ClearBackground(BLACK);
-        drawPlayer({300, 300});
 
+        drawPlayer({300, 300});
         showFPS();
 
         EndDrawing();

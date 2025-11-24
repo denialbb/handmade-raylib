@@ -1,7 +1,7 @@
 #ifndef GRADIENT_HPP
 #define GRADIENT_HPP
 
-#include "config.hpp"
+#include "managers/config.hpp"
 #include <cstdint>
 #include <raylib.h>
 
