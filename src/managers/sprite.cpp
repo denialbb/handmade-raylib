@@ -46,15 +46,19 @@ void initializeSpritesheet() {
     }
     _sprite_width = _spritesheet.width / _SPRITESHEET_COLS;
     _sprite_height = _spritesheet.height / _SPRITESHEET_ROWS;
-    _player_sprite.sprite_rect = {_player_sprite.ID.x, _player_sprite.ID.y,
+    _player_sprite.sprite_rect = {_player_sprite.ID.x * _sprite_width,
+                                  _player_sprite.ID.y * _sprite_height,
                                   _sprite_width, _sprite_height};
 }
 
 void drawPlayer(Vector2 position) {
     _player_sprite.position = position;
 
+    Rectangle destRec = {position.x, position.y, _player_sprite.size.width, _player_sprite.size.height};
+    Vector2 origin = {_player_sprite.size.width / 2, _player_sprite.size.height / 2};
+
     DrawTexturePro(_spritesheet, _player_sprite.sprite_rect,
-                   _player_sprite.size, position, _player_sprite.rotation,
+                   destRec, origin, _player_sprite.rotation,
                    _player_sprite.tint);
 }
 
