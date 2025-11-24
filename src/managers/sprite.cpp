@@ -11,8 +11,8 @@
 // position, Color tint);
 
 // NOTE: spritesheet is 16x16
-const char *_SPRITESHEET =
-    "../../assets/sprites/dungeonmode/bitmap/dungeon-mode.png";
+// path is relative to executable (cwd)
+const char *_SPRITESHEET = "assets/sprites/dungeonmode/bitmap/dungeon-mode.png";
 const int _SPRITESHEET_COLS = 16;
 const int _SPRITESHEET_ROWS = 16;
 Texture2D _spritesheet;

@@ -2,12 +2,12 @@
 #include <cstdio>
 #include <raylib.h>
 
-const char *OST_FILE = "../assets/ost/ost1.ogg";
+const char *OST_FILE = "assets/ost/ost1.ogg";
 Sound _ost;
 
 bool initializeAudio() {
     InitAudioDevice();
-    SetMasterVolume(100);
+    SetMasterVolume(2);
     return IsAudioDeviceReady();
 }
 
