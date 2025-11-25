@@ -1,8 +1,10 @@
 #include "main.hpp"
+#include "managers/audio.hpp"
 #include "managers/config.hpp"
 #include "managers/input.hpp"
 #include "managers/sprite.hpp"
 #include "shaders/crt.hpp"
+#include "shaders/crt_arcade.hpp"
 #include <raylib.h>
 #include <string>
 #include <utility>
@@ -14,6 +16,11 @@ Font font, font_inverted;
 Camera2D camera;
 TilemapManager tilemap;
 RenderTexture2D crt_target;
+CrtArcade crt;
+
+// NOTE: Render at low resolution and then upcale w/ shader
+const int gameWidth = 320;
+const int gameHeight = 240;
 
 void showFPS(void) {
     int fps = GetFPS();
@@ -28,7 +35,16 @@ int main(void) {
 
     LoadConfig(ASSETS_CONFIG.c_str());
 
+    muteMaster();
     initializeGame();
+
+    // low res target
+    RenderTexture2D arcade_shader_target =
+        LoadRenderTexture(gameWidth, gameHeight);
+
+    // NOTE: Lottes shader does its own filtering.
+    SetTextureFilter(arcade_shader_target.texture, TEXTURE_FILTER_POINT);
+    crt.Init();
 
     while (!WindowShouldClose()) {
         _time = GetTime();
@@ -42,26 +58,47 @@ int main(void) {
 
         handleCamera();
 
-        BeginDrawing();
+        // BeginTextureMode(crt_target); // CRT_SHADER
 
-        BeginTextureMode(crt_target);
+        // NOTE: low res draw to texture
+        BeginTextureMode(arcade_shader_target); // ARCADE_SHADER
 
-        BeginMode2D(camera);
         ClearBackground(BLACK);
+        BeginMode2D(camera);
 
         tilemap.draw({0, 0});
+        drawPlayer(player_pos); // TODO draw with tilemanager
 
-        // TODO draw with tilemanager
-        drawPlayer(player_pos);
+        EndMode2D();      // CAMERA2D
+        EndTextureMode(); // END ARCADE_SHADER
 
-        EndMode2D();
+        // NOTE: high res draw to screen
+        BeginDrawing();
+        ClearBackground(BLACK);
 
-        EndTextureMode();
+        // Update Uniforms
+        crt.ApplyValues((Vector2){(float)gameWidth, (float)gameHeight},
+                        (Vector2){(float)screenWidth, (float)screenHeight});
 
-        updateShader(_time);
-        renderShader();
+        // Draw using shader
+        BeginShaderMode(crt.GetShader());
 
-        // Draw UI (Non-camera)
+        // Draw the render texture scaled up to fit the screen.
+        // NOTE: sourceRec height is negative to flip the texture correctly!
+        DrawTexturePro(
+            arcade_shader_target.texture,
+            (Rectangle){0.0f, 0.0f, (float)arcade_shader_target.texture.width,
+                        (float)-arcade_shader_target.texture.height},
+            (Rectangle){0.0f, 0.0f, (float)screenWidth, (float)screenHeight},
+            (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+
+        EndShaderMode();
+
+        // CRT SHADER
+        // updateShader(_time);
+        // renderShader();
+
+        DrawFPS(screenWidth - 80, 10);
         DrawTextEx(font, "Use Arrow Keys to Move", {10, 10}, 20, 0, WHITE);
 
         EndDrawing();
@@ -83,6 +120,8 @@ void handleInput(Vector2 &next_pos, float move_speed) {
         next_pos.y += move_speed;
     if (IsKeyDown(KEY_UP))
         next_pos.y -= move_speed;
+    if (IsKeyDown(KEY_M))
+        toggleMasterMute();
 }
 
 Vector2 checkCollisions(Vector2 next_pos) {
@@ -98,25 +137,25 @@ Vector2 checkCollisions(Vector2 next_pos) {
 
 void handleCamera() {
     camera.target = player_pos;
-    camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
+
+    // NOTE: Use gameWidth/gameHeight, NOT screenWidth/screenHeight
+    // texture is 320x240, the center is 160,120.
+    camera.offset = (Vector2){gameWidth / 2.0f, gameHeight / 2.0f};
+
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
 }
 
-void initializeGame() {
-    initializeInput();
-
-    initializeAudio();
-    loadOST();
-    playOST();
-
-    initializeSpritesheet();
-
+void initializeFonts() {
     const char *font_path = asset_config.find("ui.font.path")->second.c_str();
     const char *font_inverted_path =
         asset_config.find("ui.font-inverted.path")->second.c_str();
 
     font = LoadFont(font_path);
     font_inverted = LoadFont(font_inverted_path);
+}
 
+Vector2 initializeTilemap() {
     const char *charset_path =
         asset_config.find("charset.dungeon.path")->second.c_str();
     const char *palette_path =
@@ -134,10 +173,27 @@ void initializeGame() {
 
     tilemap.load(map_path, palette_path, palette_count, charset_path, 8);
 
-    camera = {};
-    camera.zoom = 4.0f;
+    return {float(map_spawn_x), float(map_spawn_y)};
+}
 
-    player_pos = {map_spawn_x * 8.0f, map_spawn_y * 8.0f};
+void initializeGame() {
+    initializeInput();
+
+    initializeAudio();
+    loadOST();
+    playOST();
+
+    initializeSpritesheet();
+
+    initializeFonts();
+
+    Vector2 map_spawn = initializeTilemap();
+
+    camera = {};
+    camera.zoom = 1.0f;
+
+    // TODO reference the tile size
+    player_pos = {map_spawn.x * 8.0f, map_spawn.y * 8.0f};
     move_speed = 0.7f;
 
     crt_target = loadShader();
@@ -147,4 +203,5 @@ void unloadGame() {
     closeAudio();
     unloadSpritesheet();
     unloadShader();
+    crt.Unload();
 }

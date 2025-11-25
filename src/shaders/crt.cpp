@@ -4,26 +4,26 @@
 #include <string>
 
 struct CrtParams {
-    float overlay = 0.0f;
-    float scanlines_opacity = 0.4f;
-    float scanlines_width = 0.25f;
-    float grille_opacity = 0.3f;
-    float pixelate = 1.0f;
-    float roll = 1.0f;
-    float roll_speed = 8.0f;
-    float roll_size = 15.0f;
-    float roll_variation = 1.8f;
-    float distort_intensity = 0.05f;
-    float noise_opacity = 0.4f;
-    float noise_speed = 5.0f;
-    float static_noise_intensity = 0.06f;
-    float aberration = 0.03f;
-    float brightness = 1.4f;
-    float discolor = 1.0f;
-    float warp_amount = 1.0f;
-    float clip_warp = 0.0f;
-    float vignette_intensity = 0.4f;
-    float vignette_opacity = 0.5f;
+    float overlay = 0.8f;
+    float scanlines_opacity = 0.1f;
+    float scanlines_width = 0.10f;
+    float grille_opacity = 0.12f;
+    float pixelate = 0.3f;
+    float roll = 0.0f;
+    float roll_speed = 2.5f;
+    float roll_size = 0.4f;
+    float roll_variation = 0.7f;
+    float distort_intensity = 0.2f;
+    float noise_opacity = 0.2f;
+    float noise_speed = 1.6f;
+    float static_noise_intensity = 0.10f;
+    float aberration = 0.015f;
+    float brightness = 1.3f;
+    float discolor = 0.3f;
+    float warp_amount = 0.8f;
+    float clip_warp = 1.5f;
+    float vignette_intensity = 1.0f;
+    float vignette_opacity = 0.8f;
 };
 
 // Cache the locations instead of querying every frame
