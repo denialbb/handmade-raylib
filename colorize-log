@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+./game | sed \
+    -e 's/INFO:/[32mINFO:[0m/' \
+    -e 's/WARNING:/[33mWARNING:[0m/' \
+    -e 's/ERROR:/[31mERROR:[0m/' \
+    -e 's/SHADERS:/[36mSHADERS:[0m/'
