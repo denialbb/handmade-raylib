@@ -3,9 +3,13 @@
 #include "managers/config.hpp"
 #include "managers/input.hpp"
 #include "managers/sprite.hpp"
-#include "shaders/crt.hpp"
-#include "shaders/crt_arcade.hpp"
+// #include "shaders/crt.hpp"
+// #include "shaders/crt_arcade.hpp"
+#include "shaders/crt_lottes.hpp"
+#include <cmath>
+#include <cstdlib>
 #include <raylib.h>
+#include <raymath.h>
 #include <string>
 #include <utility>
 
@@ -16,7 +20,9 @@ Font font, font_inverted;
 Camera2D camera;
 TilemapManager tilemap;
 RenderTexture2D crt_target;
-CrtArcade crt;
+CrtLottes shader_lotte;
+Vector2 smoothed_cam_pos;
+float smoothed_cam_speed;
 
 // NOTE: Render at low resolution and then upcale w/ shader
 const int gameWidth = 320;
@@ -28,8 +34,9 @@ void showFPS(void) {
 }
 
 int main(void) {
-    SetConfigFlags(
-        FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows creation
+    // SetConfigFlags(
+    //     FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows creation
+    ToggleFullscreen();
     InitWindow(screenWidth, screenHeight, "Handmade");
     SetTargetFPS(targetFps);
 
@@ -39,35 +46,38 @@ int main(void) {
     initializeGame();
 
     // low res target
-    RenderTexture2D arcade_shader_target =
+    RenderTexture2D lottes_shader_target =
         LoadRenderTexture(gameWidth, gameHeight);
 
     // NOTE: Lottes shader does its own filtering.
-    SetTextureFilter(arcade_shader_target.texture, TEXTURE_FILTER_POINT);
-    crt.Init();
+    SetTextureFilter(lottes_shader_target.texture, TEXTURE_FILTER_POINT);
+    shader_lotte.Init();
 
     while (!WindowShouldClose()) {
         _time = GetTime();
+        // float delta = GetFrameTime();
         Vector2 next_pos = player_pos;
         handleInput(next_pos, move_speed);
         Vector2 center = checkCollisions(next_pos);
 
         if (!tilemap.isSolid(center.x, center.y)) {
-            player_pos = next_pos;
+            player_pos.x = std::round(next_pos.x);
+            player_pos.y = std::round(next_pos.y);
         }
 
         handleCamera();
 
-        // BeginTextureMode(crt_target); // CRT_SHADER
+        BeginTextureMode(crt_target); // CRT_SHADER
 
         // NOTE: low res draw to texture
-        BeginTextureMode(arcade_shader_target); // ARCADE_SHADER
+        BeginTextureMode(lottes_shader_target); // ARCADE_SHADER
 
         ClearBackground(BLACK);
         BeginMode2D(camera);
 
         tilemap.draw({0, 0});
-        drawPlayer(player_pos); // TODO draw with tilemanager
+        Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
+        drawPlayer(draw_pos); // TODO draw with tilemanager
 
         EndMode2D();      // CAMERA2D
         EndTextureMode(); // END ARCADE_SHADER
@@ -77,22 +87,48 @@ int main(void) {
         ClearBackground(BLACK);
 
         // Update Uniforms
-        crt.ApplyValues((Vector2){(float)gameWidth, (float)gameHeight},
-                        (Vector2){(float)screenWidth, (float)screenHeight});
+        shader_lotte.Apply((Vector2){(float)gameWidth, (float)gameHeight},
+                           (Vector2){(float)screenWidth, (float)screenHeight});
 
         // Draw using shader
-        BeginShaderMode(crt.GetShader());
+        BeginShaderMode(shader_lotte.GetShader());
+        float scale = std::min((float)screenWidth / gameWidth,
+                               (float)screenHeight / gameHeight);
+        scale = std::floor(scale);
 
-        // Draw the render texture scaled up to fit the screen.
-        // NOTE: sourceRec height is negative to flip the texture correctly!
-        DrawTexturePro(
-            arcade_shader_target.texture,
-            (Rectangle){0.0f, 0.0f, (float)arcade_shader_target.texture.width,
-                        (float)-arcade_shader_target.texture.height},
-            (Rectangle){0.0f, 0.0f, (float)screenWidth, (float)screenHeight},
-            (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+        // If scale is 0 (window too small), force at least 1
+        if (scale < 1.0f)
+            scale = 1.0f;
 
+        // 2. Calculate the new dimensions based on that integer scale
+        float newWidth = gameWidth * scale;
+        float newHeight = gameHeight * scale;
+
+        // 3. Center the game in the window
+        float offsetX = (screenWidth - newWidth) * 0.5f;
+        float offsetY = (screenHeight - newHeight) * 0.5f;
+
+        // 4. Draw the texture using the calculated Integer Rectangle
+        DrawTexturePro(lottes_shader_target.texture,
+                       // Source: Inverted height (OpenGL standard)
+                       (Rectangle){0.0f, 0.0f,
+                                   (float)lottes_shader_target.texture.width,
+                                   (float)-lottes_shader_target.texture.height},
+                       // Destination: Centered, Integer-Scaled Rectangle
+                       (Rectangle){offsetX, offsetY, newWidth, newHeight},
+                       (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
         EndShaderMode();
+
+        if (offsetX > 0) {
+            DrawRectangle(0, 0, offsetX, screenHeight, BLACK); // Left
+            DrawRectangle(screenWidth - offsetX, 0, offsetX, screenHeight,
+                          BLACK); // Right
+        }
+        if (offsetY > 0) {
+            DrawRectangle(0, 0, screenWidth, offsetY, BLACK); // Top
+            DrawRectangle(0, screenHeight - offsetY, screenWidth, offsetY,
+                          BLACK); // Bottom
+        }
 
         // CRT SHADER
         // updateShader(_time);
@@ -135,15 +171,40 @@ Vector2 checkCollisions(Vector2 next_pos) {
     return center;
 }
 
+Rectangle deadzone = {(gameWidth - 100) / 2.0f, (gameHeight - 100) / 2.0f, 100,
+                      100};
+
 void handleCamera() {
-    camera.target = player_pos;
+    // 1. Check Horizontal Bounds
+    // If player pushes RIGHT edge of box
+    if (player_pos.x > deadzone.x + deadzone.width) {
+        deadzone.x = player_pos.x - deadzone.width;
+    }
+    // If player pushes LEFT edge of box
+    else if (player_pos.x < deadzone.x) {
+        deadzone.x = player_pos.x;
+    }
 
-    // NOTE: Use gameWidth/gameHeight, NOT screenWidth/screenHeight
-    // texture is 320x240, the center is 160,120.
+    // 2. Check Vertical Bounds
+    // If player pushes BOTTOM edge
+    if (player_pos.y > deadzone.y + deadzone.height) {
+        deadzone.y = player_pos.y - deadzone.height;
+    }
+    // If player pushes TOP edge
+    else if (player_pos.y < deadzone.y) {
+        deadzone.y = player_pos.y;
+    }
+
+    // 3. Update Camera Target based on the Deadzone's center
+    // We add half the box size to get the center point
+    camera.target.x = deadzone.x + deadzone.width / 2.0f;
+    camera.target.y = deadzone.y + deadzone.height / 2.0f;
+
+    // 4. Force Integer Snapping (Crucial for CRT shader stability)
+    camera.target.x = std::round(camera.target.x);
+    camera.target.y = std::round(camera.target.y);
+
     camera.offset = (Vector2){gameWidth / 2.0f, gameHeight / 2.0f};
-
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
 }
 
 void initializeFonts() {
@@ -189,19 +250,17 @@ void initializeGame() {
 
     Vector2 map_spawn = initializeTilemap();
 
-    camera = {};
-    camera.zoom = 1.0f;
-
     // TODO reference the tile size
     player_pos = {map_spawn.x * 8.0f, map_spawn.y * 8.0f};
-    move_speed = 0.7f;
+    camera = {};
+    camera.zoom = 1.0f;
+    camera.target = {player_pos.x, player_pos.y};
 
-    crt_target = loadShader();
+    move_speed = 0.7f;
 }
 
 void unloadGame() {
     closeAudio();
     unloadSpritesheet();
-    unloadShader();
-    crt.Unload();
+    shader_lotte.Unload();
 }

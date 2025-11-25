@@ -12,8 +12,10 @@
 #include <string>
 
 // Screen
-constexpr int screenWidth = 1280;
-constexpr int screenHeight = 720;
+// constexpr int screenWidth = 1280;
+// constexpr int screenHeight = 720;
+constexpr int screenWidth = 1920;
+constexpr int screenHeight = 1080;
 
 // Game
 constexpr int targetFps = 60;
