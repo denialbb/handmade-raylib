@@ -160,7 +160,6 @@ void TilemapManager::drawLayer(const Layer &layer, Vector2 offset) {
     for (size_t i = 0; i < layer.tiles.size(); i++) {
         const Tile &t = layer.tiles[i];
 
-        // Skip completely empty tiles (char 0 AND bg 0)
         // Note: Sometimes you want to draw bg even if char is 0 (empty floor
         // space)
         if (t.char_id == 0 && t.bg == -1)
@@ -179,28 +178,31 @@ void TilemapManager::drawLayer(const Layer &layer, Vector2 offset) {
 
 void drawBackground(const Tile &t, const Vector2 pos,
                     const std::vector<Color> &palette, const int tile_size) {
+    Color col = BLANK;
     // NOTE: -1 is transparent
-    if (t.bg >= 0 && t.bg < palette.size()) {
-        DrawRectangleV(pos, {(float)tile_size, (float)tile_size},
-                       palette[t.bg]);
+    if (t.bg >= -1 && t.bg < palette.size()) {
+        if (t.bg >= 0) {
+            col = palette[t.bg];
+        }
     }
+    DrawRectangleV(pos, {(float)tile_size, (float)tile_size}, col);
 }
 
 void drawForeground(const Texture2D &tileset, const Tile &t, const Vector2 pos,
                     const std::vector<Color> &palette, const int tile_size,
                     const int tiles_per_row) {
     // 2. Draw Foreground Character
-    if (t.char_id != 0) { // 32 is space
+    if (t.char_id != 0) {
         Rectangle source = {(float)(t.char_id % tiles_per_row) * tile_size,
                             (float)(t.char_id / tiles_per_row) * tile_size,
                             (float)tile_size, (float)tile_size};
 
-        Color fg_color = WHITE;
-        if (t.fg >= 0 && t.fg < palette.size()) {
-            fg_color = palette[t.fg];
+        Color col = WHITE;
+        if (t.fg >= -1 && t.fg < palette.size()) {
+            col = palette[t.fg];
         }
 
-        DrawTextureRec(tileset, source, pos, fg_color);
+        DrawTextureRec(tileset, source, pos, col);
     }
 }
 
