@@ -4,10 +4,12 @@
 #include <raylib.h>
 
 Sound _ost;
+bool _is_muted = false;
+float _volume = 0.2f;
 
 bool initializeAudio() {
     InitAudioDevice();
-    SetMasterVolume(0.2f);
+    SetMasterVolume(_volume);
     return IsAudioDeviceReady();
 }
 
@@ -27,7 +29,30 @@ void loadOST() {
 
 void playOST() { PlaySound(_ost); }
 
+void muteMaster() {
+    if (!_is_muted) {
+        _is_muted = true;
+        _volume = GetMasterVolume();
+        SetMasterVolume(0);
+    }
+}
+
+void unmuteMaster() {
+    if (_is_muted) {
+        _is_muted = false;
+        SetMasterVolume(_volume);
+    }
+}
+
 void closeAudio() {
     UnloadSound(_ost);
     CloseAudioDevice();
+}
+
+void toggleMasterMute() {
+    if (!_is_muted) {
+        muteMaster();
+    } else {
+        unmuteMaster();
+    }
 }
