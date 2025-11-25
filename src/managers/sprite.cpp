@@ -19,17 +19,17 @@ struct Sprite {
     Color tint;
 };
 
-static Sprite _player_sprite = {};
+Sprite _player_sprite = {};
 void initializePlayerSprite();
 
 void initializeSpritesheet() {
-    const std::string _key_cols = "sprites.sheet.1.cols";
-    const std::string _key_rows = "sprites.sheet.1.rows";
-    const std::string _key_path = "sprites.sheet.1.path";
+    const std::string key_cols = "sprites.sheet.1.cols";
+    const std::string key_rows = "sprites.sheet.1.rows";
+    const std::string key_path = "sprites.sheet.1.path";
 
-    _spritesheet_cols = std::stoi(asset_config.find(_key_cols)->second);
-    _spritesheet_rows = std::stoi(asset_config.find(_key_rows)->second);
-    const char *spritesheet_path = asset_config.find(_key_path)->second.c_str();
+    _spritesheet_cols = std::stoi(asset_config.find(key_cols)->second);
+    _spritesheet_rows = std::stoi(asset_config.find(key_rows)->second);
+    const char *spritesheet_path = asset_config.find(key_path)->second.c_str();
 
     printf("Loading spritesheet from: %s\n", spritesheet_path);
 
@@ -76,8 +76,7 @@ void drawPlayer(Vector2 position) {
                          _player_sprite.size.height};
 
     // origin for rotation
-    Vector2 origin = {_player_sprite.size.width / 2,
-                      _player_sprite.size.height / 2};
+    Vector2 origin = {0, 0};
 
     DrawTexturePro(_spritesheet, _player_sprite.sprite_rect, destRec, origin,
                    _player_sprite.rotation, _player_sprite.tint);
