@@ -1,44 +1,33 @@
-# handmade-raylib
+# Handmade Raylib
 
-This project is a C++ codebase inspired by Casey Muratori's Handmade Hero series, utilizing the Raylib library for graphics and audio. The goal is to build a foundational understanding of game development from first principles.
+A C++ game development project inspired by the Handmade Hero series, built using the Raylib library. This project focuses on implementing foundational game systems from scratch, featuring custom tilemap rendering, shader-based visual effects, and unified asset management.
+
+## Features
+
+*   **Tilemap System**: Custom loader for Playscii (`.psci`) maps using JSON, supporting layered rendering and transparency handling.
+*   **Visual Effects**:
+    *   **CRT Shader**: Lottes-style CRT post-processing for retro visual aesthetics.
+    *   **Particle System**: GPU-based particle explosions with distortion, chromatic tinting, and dispersion logic.
+*   **Rendering**: Unified texture management allowing sprites and environment layers to share resources.
+*   **Asset Management**: Configurable asset loading for audio, fonts, and textures.
 
 ## Getting Started
 
-This project uses `make` to build, run, and test. Before you begin, ensure you have `make`, `g++`, and the `raylib` library installed and correctly configured in your environment.
+This project uses **CMake** for its build system. Ensure you have `cmake`, a C++ compiler (e.g., `g++`), and `raylib` installed.
 
-### Building the Game
+### Build and Run
 
-To compile the project, run the following command:
-
-```sh
-make game
-```
-
-This will generate an executable file (`game` on Linux, `game.exe` on Windows) in the root directory.
-
-### Building and Running the Game
-
-To compile and immediately run the game, use:
+To configure, build, and execute the game in one step:
 
 ```sh
 cmake -S . -B build && cmake --build build && ./game
 ```
 
-### Running the Tests
+## Controls
 
-To build and run the unit tests, use the following command:
-
-```sh
-make tests
-```
-
-### Cleaning Up
-
-To remove all generated binaries and build artifacts, run:
-
-```sh
-make clean
-```
+*   **Arrow Keys**: Move Character
+*   **Space**: Trigger Particle Explosion Effect
+*   **M**: Toggle Audio Mute
 
 ## License
 
