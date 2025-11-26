@@ -3,11 +3,9 @@
 #include "managers/config.hpp"
 #include "managers/input.hpp"
 #include "managers/sprite.hpp"
-// #include "shaders/crt.hpp"
-// #include "shaders/crt_arcade.hpp"
 #include "shaders/crt_lottes.hpp"
+#include "shaders/particles.hpp"
 #include <cmath>
-#include <cstdlib>
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
@@ -21,6 +19,7 @@ Camera2D camera;
 TilemapManager tilemap;
 RenderTexture2D crt_target;
 CrtLottes shader_lotte;
+ParticleExplosion fx_expl;
 Vector2 smoothed_cam_pos;
 float smoothed_cam_speed;
 
@@ -45,6 +44,8 @@ int main(void) {
     muteMaster();
     initializeGame();
 
+    fx_expl.Init();
+
     // low res target
     RenderTexture2D lottes_shader_target =
         LoadRenderTexture(gameWidth, gameHeight);
@@ -67,10 +68,11 @@ int main(void) {
 
         handleCamera();
 
-        BeginTextureMode(crt_target); // CRT_SHADER
+        // BeginTextureMode(crt_target); // CRT_SHADER
 
+        /////////////////////
         // NOTE: low res draw to texture
-        BeginTextureMode(lottes_shader_target); // ARCADE_SHADER
+        BeginTextureMode(lottes_shader_target); // LOTTES_SHADER
 
         ClearBackground(BLACK);
         BeginMode2D(camera);
@@ -79,9 +81,24 @@ int main(void) {
         Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
         drawPlayer(draw_pos); // TODO draw with tilemanager
 
-        EndMode2D();      // CAMERA2D
-        EndTextureMode(); // END ARCADE_SHADER
+        if (IsKeyPressed(KEY_SPACE)) {
+            TraceLog(LOG_INFO, "SHADER: spawning particles");
+            BeginBlendMode(BLEND_ADDITIVE);
+            Vector2 spawnPos = {player_pos.x + 8.0f, player_pos.y + 8.0f};
 
+            fx_expl.Update((float)gameWidth, (float)gameHeight, _time,
+                           spawnPos);
+
+            BeginShaderMode(fx_expl.shader);
+            DrawRectangle(0, 0, gameWidth, gameHeight, WHITE);
+            EndShaderMode();
+            EndBlendMode();
+        }
+
+        EndMode2D();      // CAMERA2D
+        EndTextureMode(); // END LOTTES_SHADER
+
+        /////////////////////
         // NOTE: high res draw to screen
         BeginDrawing();
         ClearBackground(BLACK);
@@ -263,4 +280,5 @@ void unloadGame() {
     closeAudio();
     unloadSpritesheet();
     shader_lotte.Unload();
+    fx_expl.Unload();
 }
