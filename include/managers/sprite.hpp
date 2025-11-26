@@ -10,9 +10,9 @@ void unloadSpritesheet();
 void drawPlayer(Vector2 position);
 
 // Expose internal sprite data for effects
-Texture2D GetSpriteSheet();
-Rectangle GetPlayerRect();
-float GetSpriteWidth();
-float GetSpriteHeight();
+Texture2D getSpriteSheet();
+Rectangle getPlayerRect();
+float getSpriteWidth();
+float getSpriteHeight();
 
 #endif // HANDMADE_SPRITE_H

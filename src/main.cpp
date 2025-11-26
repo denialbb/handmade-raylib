@@ -24,8 +24,8 @@ Vector2 smoothed_cam_pos;
 float smoothed_cam_speed;
 
 // NOTE: Render at low resolution and then upcale w/ shader
-const int gameWidth = 320;
-const int gameHeight = 240;
+const int game_width = 320;
+const int game_height = 240;
 
 void showFPS(void) {
     int fps = GetFPS();
@@ -44,11 +44,11 @@ int main(void) {
     muteMaster();
     initializeGame();
 
-    fx_expl.Init();
+    fx_expl.init();
 
     // low res target
     RenderTexture2D lottes_shader_target =
-        LoadRenderTexture(gameWidth, gameHeight);
+        LoadRenderTexture(game_width, game_height);
 
     // NOTE: Lottes shader does its own filtering.
     SetTextureFilter(lottes_shader_target.texture, TEXTURE_FILTER_POINT);
@@ -82,19 +82,19 @@ int main(void) {
         drawPlayer(draw_pos); // TODO draw with tilemanager
         
         // Draw explosion effect on top of player if active
-        fx_expl.Render(draw_pos);
+        fx_expl.render(draw_pos);
 
         if (IsKeyPressed(KEY_SPACE)) {
             TraceLog(LOG_INFO, "SHADER: triggering explosion");
             
             // Random bright color
-            Vector3 rndColor = {
+            Vector3 rnd_color = {
                 (float)GetRandomValue(100, 255) / 255.0f,
                 (float)GetRandomValue(100, 255) / 255.0f,
                 (float)GetRandomValue(100, 255) / 255.0f
             };
             
-            fx_expl.Trigger(0.5f, rndColor); 
+            fx_expl.trigger(0.5f, rnd_color); 
         }
 
         EndMode2D();      // CAMERA2D
@@ -106,13 +106,13 @@ int main(void) {
         ClearBackground(BLACK);
 
         // Update Uniforms
-        shader_lotte.Apply((Vector2){(float)gameWidth, (float)gameHeight},
+        shader_lotte.Apply((Vector2){(float)game_width, (float)game_height},
                            (Vector2){(float)screenWidth, (float)screenHeight});
 
         // Draw using shader
         BeginShaderMode(shader_lotte.GetShader());
-        float scale = std::min((float)screenWidth / gameWidth,
-                               (float)screenHeight / gameHeight);
+        float scale = std::min((float)screenWidth / game_width,
+                               (float)screenHeight / game_height);
         scale = std::floor(scale);
 
         // If scale is 0 (window too small), force at least 1
@@ -120,8 +120,8 @@ int main(void) {
             scale = 1.0f;
 
         // 2. Calculate the new dimensions based on that integer scale
-        float newWidth = gameWidth * scale;
-        float newHeight = gameHeight * scale;
+        float newWidth = game_width * scale;
+        float newHeight = game_height * scale;
 
         // 3. Center the game in the window
         float offsetX = (screenWidth - newWidth) * 0.5f;
@@ -190,7 +190,7 @@ Vector2 checkCollisions(Vector2 next_pos) {
     return center;
 }
 
-Rectangle deadzone = {(gameWidth - 100) / 2.0f, (gameHeight - 100) / 2.0f, 100,
+Rectangle deadzone = {(game_width - 100) / 2.0f, (game_height - 100) / 2.0f, 100,
                       100};
 
 void handleCamera() {
@@ -223,7 +223,7 @@ void handleCamera() {
     camera.target.x = std::round(camera.target.x);
     camera.target.y = std::round(camera.target.y);
 
-    camera.offset = (Vector2){gameWidth / 2.0f, gameHeight / 2.0f};
+    camera.offset = (Vector2){game_width / 2.0f, game_height / 2.0f};
 }
 
 void initializeFonts() {
@@ -282,5 +282,5 @@ void unloadGame() {
     closeAudio();
     unloadSpritesheet();
     shader_lotte.Unload();
-    fx_expl.Unload();
+    fx_expl.unload();
 }

@@ -86,7 +86,7 @@ void drawPlayer(Vector2 position) {
 
 void unloadSpritesheet() { UnloadTexture(_spritesheet); }
 
-Texture2D GetSpriteSheet() { return _spritesheet; }
-Rectangle GetPlayerRect() { return _player_sprite.sprite_rect; }
-float GetSpriteWidth() { return _sprite_width; }
-float GetSpriteHeight() { return _sprite_height; }
+Texture2D getSpriteSheet() { return _spritesheet; }
+Rectangle getPlayerRect() { return _player_sprite.sprite_rect; }
+float getSpriteWidth() { return _sprite_width; }
+float getSpriteHeight() { return _sprite_height; }
