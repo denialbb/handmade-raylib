@@ -1,4 +1,5 @@
 #include "main.hpp"
+#include "effects/ghost.hpp"
 #include "managers/audio.hpp"
 #include "managers/config.hpp"
 #include "managers/input.hpp"
@@ -56,11 +57,14 @@ int main(void) {
 
     while (!WindowShouldClose()) {
         _time = GetTime();
-        // float delta = GetFrameTime();
+        float dt = GetFrameTime();
+        updateGhosts(dt);
+
         Vector2 next_pos = player_pos;
         handleInput(next_pos, move_speed);
         Vector2 center = checkCollisions(next_pos);
 
+        // BUG: stuck trying to move up/down while touching wall
         if (!tilemap.isSolid(center.x, center.y)) {
             player_pos.x = std::round(next_pos.x);
             player_pos.y = std::round(next_pos.y);
@@ -79,7 +83,9 @@ int main(void) {
 
         tilemap.draw({0, 0});
         Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
-        drawPlayer(draw_pos, tilemap.getTexture()); // TODO draw with tilemanager
+
+        drawGhosts(); // behind player
+        drawPlayer(draw_pos, tilemap.getTexture());
 
         // Draw explosion effect on top of player if active
         fx_expl.render(draw_pos);
@@ -160,21 +166,30 @@ int main(void) {
 }
 
 void handleInput(Vector2 &next_pos, float move_speed) {
-    // Basic Movement
-    if (IsKeyDown(KEY_RIGHT))
+    if (InputManager::isActionDown(GameAction::MOVE_RIGHT)) {
         next_pos.x += move_speed;
-    if (IsKeyDown(KEY_LEFT))
+        addGhost(player_pos, getPlayerRect(), 0.0f);
+    }
+    if (InputManager::isActionDown(GameAction::MOVE_LEFT)) {
         next_pos.x -= move_speed;
-    if (IsKeyDown(KEY_DOWN))
-        next_pos.y += move_speed;
-    if (IsKeyDown(KEY_UP))
+        addGhost(player_pos, getPlayerRect(), 0.0f);
+    }
+    if (InputManager::isActionDown(GameAction::MOVE_UP)) {
         next_pos.y -= move_speed;
-    if (IsKeyDown(KEY_M))
+        addGhost(player_pos, getPlayerRect(), 0.0f);
+    }
+    if (InputManager::isActionDown(GameAction::MOVE_DOWN)) {
+        next_pos.y += move_speed;
+        addGhost(player_pos, getPlayerRect(), 0.0f);
+    }
+
+    if (InputManager::isActionPressed(GameAction::MUTE)) {
         toggleMasterMute();
+        addGhost(player_pos, getPlayerRect(), 0.0f);
+    }
 }
 
 Vector2 checkCollisions(Vector2 next_pos) {
-    // Collision Check
     // We check the center of the player to avoid getting stuck on edges
     Vector2 center;
 
@@ -249,7 +264,7 @@ void initializeGame() {
     initializeFonts();
 
     Vector2 map_spawn = initializeTilemap();
-    
+
     // Initialize player using the texture loaded by tilemap
     initializePlayer(tilemap.getTexture());
 
@@ -258,8 +273,11 @@ void initializeGame() {
     camera = {};
     camera.zoom = 1.0f;
     camera.target = {player_pos.x, player_pos.y};
-
     move_speed = 0.7f;
+
+    Color start = CLITERAL(Color){200, 0, 0, 200};
+    Color end = CLITERAL(Color){0, 0, 200, 0};
+    initGhostSystem(tilemap.getTexture(), start, end);
 }
 
 void unloadGame() {
