@@ -93,7 +93,11 @@ void TilemapManager::load(const char *map_path, const char *palette_path,
             _current_palette.push_back(MAGENTA);
     }
 
-    _tileset_texture = LoadTexture(tileset_path);
+    // Load tileset image and treat BLACK as transparent to fix layering issues
+    Image tileset_img = LoadImage(tileset_path);
+    ImageColorReplace(&tileset_img, BLACK, BLANK);
+    _tileset_texture = LoadTextureFromImage(tileset_img);
+    UnloadImage(tileset_img);
 }
 
 void TilemapManager::unload() {
@@ -178,13 +182,17 @@ void TilemapManager::drawLayer(const Layer &layer, Vector2 offset) {
 
 void drawBackground(const Tile &t, const Vector2 pos,
                     const std::vector<Color> &palette, const int tile_size) {
-    Color col = BLANK;
-    // NOTE: -1 is transparent
-    if (t.bg >= -1 && t.bg < palette.size()) {
-        if (t.bg >= 0) {
-            col = palette[t.bg];
-        }
-    }
+    // Optimization: Skip drawing if background is explicitly transparent (index -1)
+    // or if the index is out of bounds.
+    if (t.bg < 0 || t.bg >= (int)palette.size()) 
+        return;
+
+    Color col = palette[t.bg];
+    
+    // Optimization: Skip drawing if the palette color itself is fully transparent
+    if (col.a == 0) 
+        return;
+
     DrawRectangleV(pos, {(float)tile_size, (float)tile_size}, col);
 }
 
