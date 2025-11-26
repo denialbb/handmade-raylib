@@ -5,12 +5,10 @@
 #include <cstdio>
 #include <raylib.h>
 
-void initializeSpritesheet();
-void unloadSpritesheet();
-void drawPlayer(Vector2 position);
+void initializePlayer(Texture2D texture);
+void drawPlayer(Vector2 position, Texture2D texture);
 
 // Expose internal sprite data for effects
-Texture2D getSpriteSheet();
 Rectangle getPlayerRect();
 float getSpriteWidth();
 float getSpriteHeight();

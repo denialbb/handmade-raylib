@@ -44,7 +44,7 @@ int main(void) {
     muteMaster();
     initializeGame();
 
-    fx_expl.init();
+    fx_expl.init(tilemap.getTexture());
 
     // low res target
     RenderTexture2D lottes_shader_target =
@@ -79,7 +79,7 @@ int main(void) {
 
         tilemap.draw({0, 0});
         Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
-        drawPlayer(draw_pos); // TODO draw with tilemanager
+        drawPlayer(draw_pos, tilemap.getTexture()); // TODO draw with tilemanager
 
         // Draw explosion effect on top of player if active
         fx_expl.render(draw_pos);
@@ -245,11 +245,13 @@ void initializeGame() {
     loadOST();
     playOST();
 
-    initializeSpritesheet();
-
+    // initializeSpritesheet(); // Removed, now using tilemap texture
     initializeFonts();
 
     Vector2 map_spawn = initializeTilemap();
+    
+    // Initialize player using the texture loaded by tilemap
+    initializePlayer(tilemap.getTexture());
 
     // TODO reference the tile size
     player_pos = {map_spawn.x * 8.0f, map_spawn.y * 8.0f};
@@ -262,7 +264,7 @@ void initializeGame() {
 
 void unloadGame() {
     closeAudio();
-    unloadSpritesheet();
+    // unloadSpritesheet(); // Texture owned by tilemap
     shader_lotte.Unload();
     fx_expl.unload();
 }

@@ -19,7 +19,7 @@ struct ParticleExplosion {
     Rectangle
         explosion_source_rect; // Source rectangle for the explosion sprite
 
-    void init() {
+    void init(Texture2D texture) {
         shader = LoadShader(0, "assets/shaders/glsl330/particles.fs");
         loc_progress = GetShaderLocation(shader, "progress");
         loc_strength = GetShaderLocation(shader, "strength");
@@ -27,7 +27,7 @@ struct ParticleExplosion {
 
         // Get the spritesheet and define the source rectangle for the explosion
         // sprite (Heart/Dot)
-        explosion_tex = getSpriteSheet();
+        explosion_tex = texture;
         float sprite_cell_width = getSpriteWidth();
         float sprite_cell_height = getSpriteHeight();
 

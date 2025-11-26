@@ -54,6 +54,7 @@ class TilemapManager {
     bool isSolid(int grid_x, int grid_y);
 
     const PlaysciiMap &getMapData() const;
+    Texture2D getTexture() const { return _tileset_texture; }
 
   private:
     PlaysciiMap _current_map;
