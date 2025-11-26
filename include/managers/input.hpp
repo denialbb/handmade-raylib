@@ -1,12 +1,26 @@
-#ifndef HANDMADE_INPUT_H
-#define HANDMADE_INPUT_H
+#ifndef INPUT_MANAGER_HPP
+#define INPUT_MANAGER_HPP
 
-#include <cstdint>
-#include <cstdio>
-#include <raylib.h>
+#include "raylib.h"
 
-void initializeInput();
-void handleInput();
-void rumble(float left, float right, float duration);
+enum class GameAction {
+    MOVE_UP,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    ATTACK, // Space / A button
+    MUTE    // M / Select button
+};
 
-#endif // HANDMADE_INPUT_H
+namespace InputManager {
+    void init();
+    void update(); // Poll inputs if necessary
+
+    // Check if action button is currently held down
+    bool isActionDown(GameAction action);
+
+    // Check if action button was pressed this frame
+    bool isActionPressed(GameAction action);
+}
+
+#endif // INPUT_MANAGER_HPP

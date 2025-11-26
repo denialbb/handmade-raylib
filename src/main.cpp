@@ -84,7 +84,7 @@ int main(void) {
         // Draw explosion effect on top of player if active
         fx_expl.render(draw_pos);
 
-        if (IsKeyPressed(KEY_SPACE)) {
+        if (InputManager::isActionPressed(GameAction::ATTACK)) {
             TraceLog(LOG_INFO, "SHADER: triggering explosion");
 
             // Random bright color
@@ -239,7 +239,7 @@ Vector2 initializeTilemap() {
 }
 
 void initializeGame() {
-    initializeInput();
+    InputManager::init();
 
     initializeAudio();
     loadOST();
