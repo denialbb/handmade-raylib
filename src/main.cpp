@@ -80,21 +80,19 @@ int main(void) {
         tilemap.draw({0, 0});
         Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
         drawPlayer(draw_pos); // TODO draw with tilemanager
-        
+
         // Draw explosion effect on top of player if active
         fx_expl.render(draw_pos);
 
         if (IsKeyPressed(KEY_SPACE)) {
             TraceLog(LOG_INFO, "SHADER: triggering explosion");
-            
+
             // Random bright color
-            Vector3 rnd_color = {
-                (float)GetRandomValue(100, 255) / 255.0f,
-                (float)GetRandomValue(100, 255) / 255.0f,
-                (float)GetRandomValue(100, 255) / 255.0f
-            };
-            
-            fx_expl.trigger(0.5f, rnd_color); 
+            Vector3 rnd_color = {(float)GetRandomValue(100, 255) / 255.0f,
+                                 (float)GetRandomValue(100, 255) / 255.0f,
+                                 (float)GetRandomValue(100, 255) / 255.0f};
+
+            fx_expl.trigger(0.5f, rnd_color);
         }
 
         EndMode2D();      // CAMERA2D
@@ -119,33 +117,29 @@ int main(void) {
         if (scale < 1.0f)
             scale = 1.0f;
 
-        // 2. Calculate the new dimensions based on that integer scale
-        float newWidth = game_width * scale;
-        float newHeight = game_height * scale;
+        float scaled_width = game_width * scale;
+        float scaled_height = game_height * scale;
 
-        // 3. Center the game in the window
-        float offsetX = (screenWidth - newWidth) * 0.5f;
-        float offsetY = (screenHeight - newHeight) * 0.5f;
+        float offset_x = (screenWidth - scaled_width) * 0.5f;
+        float offset_y = (screenHeight - scaled_height) * 0.5f;
 
-        // 4. Draw the texture using the calculated Integer Rectangle
-        DrawTexturePro(lottes_shader_target.texture,
-                       // Source: Inverted height (OpenGL standard)
-                       (Rectangle){0.0f, 0.0f,
-                                   (float)lottes_shader_target.texture.width,
-                                   (float)-lottes_shader_target.texture.height},
-                       // Destination: Centered, Integer-Scaled Rectangle
-                       (Rectangle){offsetX, offsetY, newWidth, newHeight},
-                       (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+        DrawTexturePro(
+            lottes_shader_target.texture,
+            // Source: Inverted height (OpenGL standard)
+            (Rectangle){0.0f, 0.0f, (float)lottes_shader_target.texture.width,
+                        (float)-lottes_shader_target.texture.height},
+            (Rectangle){offset_x, offset_y, scaled_width, scaled_height},
+            (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
         EndShaderMode();
 
-        if (offsetX > 0) {
-            DrawRectangle(0, 0, offsetX, screenHeight, BLACK); // Left
-            DrawRectangle(screenWidth - offsetX, 0, offsetX, screenHeight,
+        if (offset_x > 0) {
+            DrawRectangle(0, 0, offset_x, screenHeight, BLACK); // Left
+            DrawRectangle(screenWidth - offset_x, 0, offset_x, screenHeight,
                           BLACK); // Right
         }
-        if (offsetY > 0) {
-            DrawRectangle(0, 0, screenWidth, offsetY, BLACK); // Top
-            DrawRectangle(0, screenHeight - offsetY, screenWidth, offsetY,
+        if (offset_y > 0) {
+            DrawRectangle(0, 0, screenWidth, offset_y, BLACK); // Top
+            DrawRectangle(0, screenHeight - offset_y, screenWidth, offset_y,
                           BLACK); // Bottom
         }
 
@@ -190,36 +184,24 @@ Vector2 checkCollisions(Vector2 next_pos) {
     return center;
 }
 
-Rectangle deadzone = {(game_width - 100) / 2.0f, (game_height - 100) / 2.0f, 100,
-                      100};
+Rectangle deadzone = {(game_width - 100) / 2.0f, (game_height - 100) / 2.0f,
+                      100, 100};
 
 void handleCamera() {
-    // 1. Check Horizontal Bounds
-    // If player pushes RIGHT edge of box
     if (player_pos.x > deadzone.x + deadzone.width) {
         deadzone.x = player_pos.x - deadzone.width;
-    }
-    // If player pushes LEFT edge of box
-    else if (player_pos.x < deadzone.x) {
+    } else if (player_pos.x < deadzone.x) {
         deadzone.x = player_pos.x;
     }
-
-    // 2. Check Vertical Bounds
-    // If player pushes BOTTOM edge
     if (player_pos.y > deadzone.y + deadzone.height) {
         deadzone.y = player_pos.y - deadzone.height;
-    }
-    // If player pushes TOP edge
-    else if (player_pos.y < deadzone.y) {
+    } else if (player_pos.y < deadzone.y) {
         deadzone.y = player_pos.y;
     }
 
-    // 3. Update Camera Target based on the Deadzone's center
-    // We add half the box size to get the center point
     camera.target.x = deadzone.x + deadzone.width / 2.0f;
     camera.target.y = deadzone.y + deadzone.height / 2.0f;
 
-    // 4. Force Integer Snapping (Crucial for CRT shader stability)
     camera.target.x = std::round(camera.target.x);
     camera.target.y = std::round(camera.target.y);
 
