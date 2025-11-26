@@ -56,8 +56,10 @@ void initializePlayerSprite() {
 
     _player_sprite.spritesheet =
         std::stoi(asset_config.find(key_sheet)->second);
+    
     _player_sprite.ID.x = std::stoi(asset_config.find(key_x)->second);
     _player_sprite.ID.y = std::stoi(asset_config.find(key_y)->second);
+
     _player_sprite.size.width = std::stoi(asset_config.find(key_width)->second);
     _player_sprite.size.height =
         std::stoi(asset_config.find(key_height)->second);
@@ -83,3 +85,8 @@ void drawPlayer(Vector2 position) {
 }
 
 void unloadSpritesheet() { UnloadTexture(_spritesheet); }
+
+Texture2D GetSpriteSheet() { return _spritesheet; }
+Rectangle GetPlayerRect() { return _player_sprite.sprite_rect; }
+float GetSpriteWidth() { return _sprite_width; }
+float GetSpriteHeight() { return _sprite_height; }

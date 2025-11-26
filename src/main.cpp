@@ -80,19 +80,21 @@ int main(void) {
         tilemap.draw({0, 0});
         Vector2 draw_pos = {std::round(player_pos.x), std::round(player_pos.y)};
         drawPlayer(draw_pos); // TODO draw with tilemanager
+        
+        // Draw explosion effect on top of player if active
+        fx_expl.Render(draw_pos);
 
         if (IsKeyPressed(KEY_SPACE)) {
-            TraceLog(LOG_INFO, "SHADER: spawning particles");
-            BeginBlendMode(BLEND_ADDITIVE);
-            Vector2 spawnPos = {player_pos.x + 8.0f, player_pos.y + 8.0f};
-
-            fx_expl.Update((float)gameWidth, (float)gameHeight, _time,
-                           spawnPos);
-
-            BeginShaderMode(fx_expl.shader);
-            DrawRectangle(0, 0, gameWidth, gameHeight, WHITE);
-            EndShaderMode();
-            EndBlendMode();
+            TraceLog(LOG_INFO, "SHADER: triggering explosion");
+            
+            // Random bright color
+            Vector3 rndColor = {
+                (float)GetRandomValue(100, 255) / 255.0f,
+                (float)GetRandomValue(100, 255) / 255.0f,
+                (float)GetRandomValue(100, 255) / 255.0f
+            };
+            
+            fx_expl.Trigger(0.5f, rndColor); 
         }
 
         EndMode2D();      // CAMERA2D
